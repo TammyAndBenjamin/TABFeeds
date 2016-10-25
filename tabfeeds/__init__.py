@@ -18,7 +18,7 @@ def products():
       <g:title>ALEXIA - Figue</g:title>
       <g:description>Le ladybag par excellence</g:description>
       <g:link>https://www.tammyandbenjamin.com/products/alexia-figue</g:link>
-      <g:image_link>https://cdn.shopify.com/s/files/1/0343/0553/products/ALEXIA_Fig_01_600x600.jpg</g:image_link>
+      <g:image_link>https://cdn.shopify.com/s/files/1/0343/0553/products/ALEXIA_Fig_01_1200x630.jpg</g:image_link>
       <g:condition>new</g:condition>
       <g:availability>in stock</g:availability>
       <g:price>500.00 EUR</g:price>
@@ -30,7 +30,7 @@ def products():
       <g:title>ALEXIA - Noir ébène</g:title>
       <g:description>Le ladybag par excellence</g:description>
       <g:link>https://www.tammyandbenjamin.com/products/alexia-noir-ebene</g:link>
-      <g:image_link>https://cdn.shopify.com/s/files/1/0343/0553/products/ALEXIA_Black_01_600x600.jpg</g:image_link>
+      <g:image_link>https://cdn.shopify.com/s/files/1/0343/0553/products/ALEXIA_Black_01_1200x630.jpg</g:image_link>
       <g:condition>new</g:condition>
       <g:availability>in stock</g:availability>
       <g:price>500.00 EUR</g:price>
