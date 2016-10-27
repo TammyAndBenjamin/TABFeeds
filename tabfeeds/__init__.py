@@ -5,6 +5,12 @@ import requests
 from flask import Flask, Response, current_app, request, abort
 
 
+LANGUAGES = {
+    'ly133': 'en',
+    'ly132': 'fr',
+}
+
+
 app = Flask(__name__)
 
 
@@ -65,12 +71,25 @@ def order_hook():
     if not _hmac_is_valid(request.get_data(), '4b543c40d4156b4a97948f4aea67ede2'.encode(), webhook_hmac):
         current_app.logger.error('HMAC not valid for webhook')
         return abort(403)
+
+    api_key = '419c762e21bda75c7008366cce286ef4-us3'
+    auth = ('tabfeeds', api_key)
+    mc_base_url = 'https://us3.api.mailchimp.com/3.0/'
+
     data = request.get_json()
     customer_email = data['customer']['email']
     customer_lang = None
     for attr in data['note_attributes']:
         if attr['name'] == 'language':
             customer_lang = attr['value']
-    current_app.logger.info(customer_email)
-    current_app.logger.info(customer_lang)
+    customer_lang = LANGUAGES.get(customer_lang, 'fr')
+
+    search_path = 'search-members'
+    payload = {
+        'query': 'go.elsewhere@gmail.com',
+    }
+    response = requests.get(mc_base_url + search_path, params=payload, auth=auth, verify=False)
+    data = response.json()
+    print(data['exact_matches'])
+
     return 'ok'
