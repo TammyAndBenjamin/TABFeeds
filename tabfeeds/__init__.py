@@ -67,7 +67,6 @@ def products():
 def order_hook():
     try:
         topic = request.headers['X-Shopify-Topic']
-        print(topic)
         webhook_hmac = request.headers['X-Shopify-Hmac-Sha256'].encode()
         json.loads(request.get_data().decode())
     except Exception as e:
@@ -80,7 +79,7 @@ def order_hook():
     mc_api_version = os.environ['MC_API_VERSION']
     mc_api_key = os.environ['MC_API_KEY']
     _, mc_zone = mc_api_key.split('-')
-    auth = ('tabfeeds', mc_api_key)
+    mc_auth = ('tabfeeds', mc_api_key)
     mc_base_url = 'https://{}.api.mailchimp.com/{}/'.format(mc_zone, mc_api_version)
 
     data = request.get_json()
@@ -93,10 +92,19 @@ def order_hook():
 
     search_path = 'search-members'
     payload = {
-        'query': 'marie.aguirre4@gmail.com',
+        'query': customer_email,
     }
-    response = requests.get(mc_base_url + search_path, params=payload, auth=auth, verify=False)
+    response = requests.get(mc_base_url + search_path, params=payload, auth=mc_auth)
     data = response.json()
-    print(data)
 
+    matches = data['exact_matches']
+    if matches['total_items'] == 0:
+        current_app.logger.warning('No member found for email {}', customer_email)
+        return 'ok'
+    member_urls = {'{}/lists/{}/members/{}'.format(mc_base_url, member['list_id'], member['id']) for member in matches['members']}
+    for member_url in member_urls:
+        payload = {
+            'language': customer_lang,
+        }
+        response = requests.patch(member_url, params=payload, auth=mc_auth)
     return 'ok'
