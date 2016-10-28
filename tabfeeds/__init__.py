@@ -1,4 +1,8 @@
-import hashlib, base64, hmac, json
+import base64
+import hashlib
+import hmac
+import json
+import os
 from functools import wraps
 
 import requests
@@ -62,19 +66,22 @@ def products():
 @app.route('/order_hook', methods=['POST'])
 def order_hook():
     try:
-        request.headers['X-Shopify-Topic']
+        topic = request.headers['X-Shopify-Topic']
+        print(topic)
         webhook_hmac = request.headers['X-Shopify-Hmac-Sha256'].encode()
         json.loads(request.get_data().decode())
     except Exception as e:
         current_app.logger.error(e)
         return abort(400)
-    if not _hmac_is_valid(request.get_data(), '4b543c40d4156b4a97948f4aea67ede2'.encode(), webhook_hmac):
+    if not _hmac_is_valid(request.get_data(), os.environ['SHOPIFY_SECRET'].encode(), webhook_hmac):
         current_app.logger.error('HMAC not valid for webhook')
         return abort(403)
 
-    api_key = '419c762e21bda75c7008366cce286ef4-us3'
-    auth = ('tabfeeds', api_key)
-    mc_base_url = 'https://us3.api.mailchimp.com/3.0/'
+    mc_api_version = os.environ['MC_API_VERSION']
+    mc_api_key = os.environ['MC_API_KEY']
+    _, mc_zone = mc_api_key.split('-')
+    auth = ('tabfeeds', mc_api_key)
+    mc_base_url = 'https://{}.api.mailchimp.com/{}/'.format(mc_zone, mc_api_version)
 
     data = request.get_json()
     customer_email = data['customer']['email']
@@ -86,10 +93,10 @@ def order_hook():
 
     search_path = 'search-members'
     payload = {
-        'query': 'go.elsewhere@gmail.com',
+        'query': 'marie.aguirre4@gmail.com',
     }
     response = requests.get(mc_base_url + search_path, params=payload, auth=auth, verify=False)
     data = response.json()
-    print(data['exact_matches'])
+    print(data)
 
     return 'ok'
